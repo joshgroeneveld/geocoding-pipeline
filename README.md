@@ -24,16 +24,15 @@ To use this tool (and any of the other AGRC API functions), you need to [sign up
 ## CLI Options
 <pre>
   <code>
-    "geocding-pipeline
+    "geocoding-pipeline
+    
     Usage:
-      geocoding-pipeline.py --review &ltinput_directory&gt
-      geocoding-pipeline.py --geocode &ltinput_directory&gt
+      geocoding-pipeline.py review &ltinput_directory&gt
+      geocoding-pipeline.py geocode &ltinput_directory&gt
       geocoding-pipeline.py -h | --help
       geocoding-pipeline.py --version
 
     Options:
-    --review &ltinput_directory&gt:   review input files and flag ones with issues
-    --geocode &ltinput_directory&gt:  geocode input Excel files
     --help, -h:                   show this screen
     --version:                    show the version number
     "
