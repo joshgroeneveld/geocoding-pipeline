@@ -4,13 +4,23 @@ review_tables.py
 A module that reviews all of the input Excel files to check for easy-to-catch errors
 '''
 
-def main():
+import os
+
+def main(input_directory):
     print("Begin reviewing records")
+    # Make a new directory called 'Facilities_to_Geocode' to store the clean,
+    # ready to geocode, inputs
+    os.chdir(input_directory)
+    os.chdir("..")
+    if os.path.isdir(os.path.join(os.getcwd(), 'Facilities_to_Geocode')):
+        pass
+    else:
+        os.mkdir('Facilities_to_Geocode')
+
 
 # For each Excel file in <input_directory>, do the following:
 
-# Make a new directory called 'Facilities_to_Geocode' to store the clean,
-# ready to geocode, inputs
+
 
 # Rename all of the column headers to replace spaces with underscores
 

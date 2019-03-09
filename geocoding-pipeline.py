@@ -28,7 +28,7 @@ def main():
 
     if args['review'] and args['<input_directory>']:
         print('Review addresses for errors')
-        review_tables.main()
+        review_tables.main(args['<input_directory>'])
 
     elif args['geocode'] and args['<input_directory>']:
         print('Geocode all the addresses in tables found in ' + str(args['<input_directory>']))
