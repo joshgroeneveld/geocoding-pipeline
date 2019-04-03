@@ -11,6 +11,13 @@ Options:
     -h, --help                    show this screen
     --version:                    show the version number
 
+Examples:
+    geocoding-pipeline.py review <input_directory>  Loads each file in the input directory into a pandas dataframe
+                                                    and gives the user options to fix problematic records before
+                                                    exporting to a cleaned up file to send through the geocoder
+    geocoding-pipeline.py geocode <input_directory> For each file in the input directory, send each record through
+                                                    the geocoder and return geocoded records to a new file
+
 """
 
 
