@@ -33,16 +33,41 @@ def prep_excel_files(input_directory, output_directory):
         df = pd.read_excel(original_excel_file)
         # Rename all of the column headers to replace spaces with underscores
         df.rename(columns=lambda x: x.replace(' ', '_'), inplace=True)
-        print(df.head())
+        # print(df.head())
 
-# Identify potential problem records
+        # Identify potential problem records
+        # Find records where the 'Address' column is blank
+        df_blanks = df[pd.isna(df['Address'])]
+        if len(df_blanks) > 0:
+            print(original_excel_file)
+            print(df_blanks[['Company_Name', 'Address', 'City', 'State', 'ZIP_Code']])
+            print('\n')
 
-    # Find records where the 'Address' column is blank
+        # Find records where the 'Address' column doesn't have a number
 
-    # Find records where the 'Address' column doesn't have a number
-
-# For each problem record, return the original address, city and zip code, then
-# give the user the option to input a valid address, set of
-# known longitude / latitude coordinates, or remove the record
+        # For each problem record, return the original address, city and zip code, then
+        # give the user the option to input a valid address, set of
+        # known longitude / latitude coordinates, or remove the record
+            for index, row in df_blanks.iterrows():
+                # print(index)
+                user_review_choices = input("Would you like to enter a new address [a]," \
+                                            " valid lat / long [l] or remove the record [r] for" \
+                                            "\n " + str(df_blanks.loc[index, 'Company_Name']) + ": ")
+                if user_review_choices == "a":
+                    new_address = input("Enter a new address: ")
+                    df.loc[[index], ['Address']] = new_address
+                    print(df.loc[[index]])
+                    print("Updated address")
+                elif user_review_choices == "l":
+                    new_coordinates = input("Enter a new pair of decimal degree coordinates (latitude, longitude): ")
+                    new_latitude = new_coordinates.split(",")[0]
+                    new_longitude = new_coordinates.split(",")[1]
+                    df.loc[[index], ['Latitude']] = new_latitude
+                    df.loc[[index], ['Longitude']] = new_longitude
+                    print(df.loc[[index]])
+                    print("Updated coordinates")
+                elif user_review_choices == "r":
+                    df.drop(index=index)
+                    print("Removed the record from the Data Frame")
 
 # Export the data frame to a new Excel file that will feed into the geocoder
