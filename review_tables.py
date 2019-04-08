@@ -44,15 +44,21 @@ def prep_excel_files(input_directory, output_directory):
             print('\n')
 
         # Find records where the 'Address' column doesn't have a number
+        df_potential_no_number = df[pd.notna(df['Address'])]
+        df_address_without_number = df_potential_no_number[df_potential_no_number.apply(lambda x: any(char.isdigit() for char in x['Address']) == False, axis=1)]
+
+        # Combine df_blanks and df_address_without_number
+        df_with_errors = pd.concat([df_blanks, df_address_without_number])
 
         # For each problem record, return the original address, city and zip code, then
         # give the user the option to input a valid address, set of
         # known longitude / latitude coordinates, or remove the record
-            for index, row in df_blanks.iterrows():
+        if len(df_with_errors) > 0:
+            for index, row in df_with_errors.iterrows():
                 # print(index)
                 user_review_choices = input("Would you like to enter a new address [a]," \
                                             " valid lat / long [l] or remove the record [r] for" \
-                                            "\n " + str(df_blanks.loc[index, 'Company_Name']) + ": ")
+                                            "\n " + str(df_with_errors.loc[index, 'Company_Name']) + ": ")
                 if user_review_choices == "a":
                     new_address = input("Enter a new address: ")
                     df.loc[[index], ['Address']] = new_address
