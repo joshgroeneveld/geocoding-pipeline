@@ -2,9 +2,9 @@
 
 This tool is a Python-based CLI to take input Excel files, geocode the records in those files against the AGRC geocoding API and return new Excel files with the original data and the geocoded location data.
 
-This tool is based on the existing [AGRC geocoding toolbox](https://github.com/agrc/geocoding-toolbox), which is a Python 2 script compatible with ArcMap.  This script updates the AGRC geocoding toolbox to work with Python 3 and uses the `requests` library instead of `urllib`.
+This tool is based on the existing [AGRC geocoding toolbox](https://github.com/agrc/geocoding-toolbox), which is a Python script compatible with ArcMap.
 
-To use this tool (and any of the other AGRC API functions), you need to [sign up for a free API key on their website](https://developer.mapserv.utah.gov/AccountAccess).
+To use this tool (and any of the other AGRC API functions), you need to [sign up for a free API key on their website](https://developer.mapserv.utah.gov/AccountAccess).  You also need to download the toolbox from the [pro-python-3 branch](https://github.com/agrc/geocoding-toolbox/tree/pro-python-3).
 
 ## Inputs
 - Directory of Excel files
@@ -25,7 +25,7 @@ To use this tool (and any of the other AGRC API functions), you need to [sign up
 <pre>
   <code>
     "geocoding-pipeline
-    
+
     Usage:
       geocoding-pipeline.py review &ltinput_directory&gt
       geocoding-pipeline.py geocode &ltinput_directory&gt
@@ -35,6 +35,13 @@ To use this tool (and any of the other AGRC API functions), you need to [sign up
     Options:
     --help, -h:                   show this screen
     --version:                    show the version number
+
+    Examples:
+        geocoding-pipeline.py review &ltinput_directory&gt  Loads each file in the input directory into a pandas dataframe
+                                                        and gives the user options to fix problematic records before
+                                                        exporting to a cleaned up file to send through the geocoder
+        geocoding-pipeline.py geocode &ltinput_directory&gt For each file in the input directory, send each record through
+                                                        the geocoder and return geocoded records to a new file
     "
   </code>
 </pre>
