@@ -39,7 +39,7 @@ def main():
 
     elif args['geocode'] and args['<input_directory>']:
         print('Geocode all the addresses in tables found in ' + str(args['<input_directory>']))
-        geocode_tables.main()
+        geocode_tables.main(args['<input_directory>'])
 
 
 
