@@ -19,21 +19,34 @@ def main(input_directory):
         pass
     else:
         os.mkdir('Facilities_to_Geocode')
+    if os.path.isdir(os.path.join(os.getcwd(), 'Geocoding_Results')):
+        pass
+    else:
+        os.mkdir('Geocoding_Results')
 
     facilities_to_geocode = os.path.join(os.getcwd(), 'Facilities_to_Geocode')
-    prep_excel_files(input_directory, facilities_to_geocode)
+    geocoding_results = os.path.join(os.getcwd(), 'Geocoding_Results')
+    prep_excel_files(input_directory, facilities_to_geocode, geocoding_results)
 
 
 # For each Excel file in <input_directory>, do the following:
-def prep_excel_files(input_directory, output_directory):
+def prep_excel_files(input_directory, directory_to_geocode, results_directory):
     print("Prepping Excel files")
     # Load the input Excel file into a pandas data frame
     original_excel_files = glob.glob(input_directory + "\\*.xlsx", recursive=False)
     for original_excel_file in original_excel_files:
+        print(original_excel_file)
+        output_excel_name = input("Choose an output name for this Excel file to feed into the geocoder: ")
+        print("\n")
         df = pd.read_excel(original_excel_file)
         # Rename all of the column headers to replace spaces with underscores
         df.rename(columns=lambda x: x.replace(' ', '_'), inplace=True)
-        # print(df.head())
+        # Create an 'ID' column in the data frame that we need for the geocoder
+        df.insert(0, 'ID', range(1, 1 + len(df)))
+        # Assign all records a latitude and longitude of 0.0 so that we can
+        # insert known values and geocoded values later
+        df['Latitude'] = 0.0
+        df['Longitude'] = 0.0
 
         # Identify potential problem records
         # Find records where the 'Address' column is blank
@@ -55,10 +68,12 @@ def prep_excel_files(input_directory, output_directory):
         # known longitude / latitude coordinates, or remove the record
         if len(df_with_errors) > 0:
             for index, row in df_with_errors.iterrows():
-                # print(index)
+                record_with_errors = str(df_with_errors.loc[index, 'Company_Name']) + ", " + str(df_with_errors.loc[index, 'Address']) \
+                                    + ", " + str(df_with_errors.loc[index, 'City']) + ", " + str(df_with_errors.loc[index, 'State']) \
+                                    + ", " + str(df_with_errors.loc[index, 'ZIP_Code'])
                 user_review_choices = input("Would you like to enter a new address [a]," \
                                             " valid lat / long [l] or remove the record [r] for" \
-                                            "\n " + str(df_with_errors.loc[index, 'Company_Name']) + ": ")
+                                            "\n " + record_with_errors + ": ")
                 if user_review_choices == "a":
                     new_address = input("Enter a new address: ")
                     df.loc[[index], ['Address']] = new_address
@@ -75,5 +90,26 @@ def prep_excel_files(input_directory, output_directory):
                 elif user_review_choices == "r":
                     df.drop(index=index)
                     print("Removed the record from the Data Frame")
+                else:
+                    print("Invalid choice! You must choose to enter a new address [a]," \
+                    " valid lat / long coordinates [l] or remove the record [r]." \
+                    " This record will be removed by default.")
 
-# Export the data frame to a new Excel file that will feed into the geocoder
+        # Export the data frame to a new Excel file that will feed into the geocoder
+        # For records in the dataframe with no lat long, export to an Excel in the
+        # directory to geocode
+        df_with_no_latlong = df[df['Latitude'] == 0.0]
+        if len(df_with_no_latlong) > 0:
+            geocode_file_name = output_excel_name + "_to_geocode.xlsx"
+            df_with_no_latlong.to_excel(os.path.join(directory_to_geocode, geocode_file_name), sheet_name="Sheet1")
+            print("Exported " + str(geocode_file_name) + " to " + str(directory_to_geocode))
+            print("\n")
+
+        # For records in the dataframe with a valid lat long, export to an Excel in the
+        # results direcotry
+        df_with_latlong = df[df['Latitude'] != 0.0]
+        if len(df_with_latlong) > 0:
+            latlong_file_name = output_excel_name + "_latlong.xlsx"
+            df_with_latlong.to_excel(os.path.join(results_directory, latlong_file_name), sheet_name="Sheet1")
+            print("Exported " + str(latlong_file_name) + " to " + str(results_directory))
+            print("\n")
