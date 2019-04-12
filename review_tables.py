@@ -101,7 +101,7 @@ def prep_excel_files(input_directory, directory_to_geocode, results_directory):
         df_with_no_latlong = df[df['Latitude'] == 0.0]
         if len(df_with_no_latlong) > 0:
             geocode_file_name = output_excel_name + "_to_geocode.xlsx"
-            df_with_no_latlong.to_excel(os.path.join(directory_to_geocode, geocode_file_name), sheet_name="Sheet1")
+            df_with_no_latlong.to_excel(os.path.join(directory_to_geocode, geocode_file_name), sheet_name="Sheet1", index=False)
             print("Exported " + str(geocode_file_name) + " to " + str(directory_to_geocode))
             print("\n")
 
@@ -110,6 +110,6 @@ def prep_excel_files(input_directory, directory_to_geocode, results_directory):
         df_with_latlong = df[df['Latitude'] != 0.0]
         if len(df_with_latlong) > 0:
             latlong_file_name = output_excel_name + "_latlong.xlsx"
-            df_with_latlong.to_excel(os.path.join(results_directory, latlong_file_name), sheet_name="Sheet1")
+            df_with_latlong.to_excel(os.path.join(results_directory, latlong_file_name), sheet_name="Sheet1", index=False)
             print("Exported " + str(latlong_file_name) + " to " + str(results_directory))
             print("\n")
