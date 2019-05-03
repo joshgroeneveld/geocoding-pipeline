@@ -84,6 +84,13 @@ def join_geocode_results_with_inputs(directory_to_geocode, geocoding_results_dir
         output_file_dir = final_output_directory
         output_file_name = file_root + "_Geocode.xlsx"
 
+        # Verify that the output file name has 31 or fewer characters.  Some Excel files with
+        # file names longer than 31 characters can cause problems.
+        if len(output_file_name[:-5]) > 31:
+            print("Currently exporting: " + output_file_name + ", but there are too many characters..." + "\n")
+            print("Your current output file name is: " + len(output_file_name[:-5]) + " characters" + "\n")
+            output_file_name = input("Choose a file name with 31 or fewer characters: ") + ".xlsx"
+
         results_latlong = glob.glob(geocoding_results_directory + "\\" + file_root + "_latlong.xlsx", recursive=False)
         if len(results_latlong) == 1:
             latlong_df = pd.read_excel(results_latlong[0])
