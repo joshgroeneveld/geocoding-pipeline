@@ -78,6 +78,8 @@ def join_geocode_results_with_inputs(directory_to_geocode, geocoding_results_dir
 
         # Join the Excel data frame and the CSV data frame based on the input ID
         merge_df = pd.merge(excel_df, csv_df, how='inner', left_on='ID', right_on='INID')
+        merge_df['Latitude'] = merge_df['YCoord']
+        merge_df['Longitude'] = merge_df['XCoord']
 
         # If there is a file with known lat / long locations identified in the review step,
         # load them into another pandas dataframe and concatentate with the dataframe merged above

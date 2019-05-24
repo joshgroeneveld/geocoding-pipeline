@@ -31,7 +31,7 @@ import geocode_tables
 
 
 def main():
-    args = docopt(__doc__, version='0.1.0')
+    args = docopt(__doc__, version='0.2.0')
 
     if args['review'] and args['<input_directory>']:
         print('Review addresses for errors')

@@ -88,7 +88,7 @@ def prep_excel_files(input_directory, directory_to_geocode, results_directory):
                     print(df.loc[[index]])
                     print("Updated coordinates")
                 elif user_review_choices == "r":
-                    df.drop(index=index)
+                    df = df.drop(index=index)
                     print("Removed the record from the Data Frame")
                 else:
                     print("Invalid choice! You must choose to enter a new address [a]," \
