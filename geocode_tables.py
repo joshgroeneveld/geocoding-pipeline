@@ -11,6 +11,7 @@ from api_key import API_KEY
 import glob
 import pandas as pd
 import numpy as np
+import shutil
 
 # Import the geocoding toolbox here so that it gets imported before switching directories
 arcpy.ImportToolbox('geocoding-toolbox-pro-python-3/TableGeocoder/AGRC Geocode Tools.tbx')
@@ -22,17 +23,23 @@ def main(directory_to_geocode):
     os.chdir("..")
 
     geocoding_results = os.path.join(os.getcwd(), 'Geocoding_Results')
-    # Create a directory to store the final Excel files
+    # Create a directory to store the unverified and final Excel files
+    if os.path.isdir(os.path.join(os.getcwd(), 'Unverified_Results')):
+        pass
+    else:
+        os.mkdir('Unverified_Results')
     if os.path.isdir(os.path.join(os.getcwd(), 'Final_Output')):
         pass
     else:
         os.mkdir('Final_Output')
-    final_output_directory = os.path.join(os.getcwd(), 'Final_Output')
-    geocode_tables(directory_to_geocode, final_output_directory, geocoding_results)
-    join_geocode_results_with_inputs(directory_to_geocode, geocoding_results, final_output_directory)
+    unverified_results_directory = os.path.join(os.getcwd(), 'Unverified_Results')
+    final_results_directory = os.path.join(os.getcwd(), 'Final_Output')
+    geocode_tables(directory_to_geocode, unverified_results_directory, geocoding_results)
+    join_geocode_results_with_inputs(directory_to_geocode, geocoding_results, unverified_results_directory)
+    prompt_user_to_verify_results(unverified_results_directory, final_results_directory)
 
 # For each table in <directory_to_geocode>, send all records through the geocoder
-def geocode_tables(directory_to_geocode, final_output_directory, geocoding_results_directory):
+def geocode_tables(directory_to_geocode, unverified_results_directory, geocoding_results_directory):
     print("Geocoding tables...")
 
     api_key = API_KEY
@@ -60,11 +67,10 @@ def geocode_tables(directory_to_geocode, final_output_directory, geocoding_resul
         for file in os.listdir(geocoding_results_directory):
             if file.startswith("GeocodeResults_"):
                 os.rename(os.path.join(geocoding_results_directory, file), os.path.join(geocoding_results_directory, file_root + "_geocoding_results.csv"))
-    print("Completed gecoding!")
 
     # Join geocoding results with the original tables, concatentate the results with the known lat / long
     # locations identified in the review step
-def join_geocode_results_with_inputs(directory_to_geocode, geocoding_results_directory, final_output_directory):
+def join_geocode_results_with_inputs(directory_to_geocode, geocoding_results_directory, unverified_results_directory):
     print("Joining inputs and outputs...")
     # Load the input Excel files and the output geocoded CSVs into separate Pandas data frames
     input_excel_files = glob.glob(directory_to_geocode + "\\*.xlsx", recursive=False)
@@ -83,7 +89,7 @@ def join_geocode_results_with_inputs(directory_to_geocode, geocoding_results_dir
 
         # If there is a file with known lat / long locations identified in the review step,
         # load them into another pandas dataframe and concatentate with the dataframe merged above
-        output_file_dir = final_output_directory
+        output_file_dir = unverified_results_directory
         output_file_name = file_root + "_Geocode.xlsx"
 
         # Verify that the output file name has 31 or fewer characters.  Some Excel files with
@@ -107,4 +113,17 @@ def join_geocode_results_with_inputs(directory_to_geocode, geocoding_results_dir
 
         else:
             print("There are more than two lat / long results with the same name...")
-    print("Completed joining inputs and outputs and exporting results!")
+    print("Completed joining inputs and outputs!")
+
+
+def prompt_user_to_verify_results(unverified_directory, final_results_directory):
+    verify_choice = input("Do you want to review results with a low match score? [y / n]")
+    if verify_choice == 'y':
+        print('The unverified results are located in ' + str(unverified_directory) + '. \n' \
+            'Please run python geocoding-pipeline.py verify ' + str(unverified_directory))
+    elif verify_choice == 'n':
+        print('Moving unverified results into the final output directory...')
+        unverified_results = glob.glob(unverified_directory + '\\*.xlsx', recursive=False)
+        for file in unverified_results:
+            shutil.copy2(file, final_results_directory, follow_symlinks=True)
+        print('Copied files into the final results directory.  Geocoding complete!')
