@@ -29,6 +29,23 @@ def main(input_directory):
     prep_excel_files(input_directory, facilities_to_geocode, geocoding_results)
 
 
+# Function to identify problem records
+def find_problem_records(data_frame):
+    # Identify potential problem records
+    # Find records where the 'Address' column is blank
+    df_blanks = data_frame[pd.isna(data_frame['Address'])]
+    # if len(df_blanks) > 0:
+    #     print(df_blanks[['Company_Name', 'Address', 'City', 'State', 'ZIP_Code']])
+    #     print('\n')
+
+    # Find records where the 'Address' column doesn't have a number
+    df_potential_no_number = data_frame[pd.notna(data_frame['Address'])]
+    df_address_without_number = df_potential_no_number[df_potential_no_number.apply(lambda x: any(char.isdigit() for char in x['Address']) == False, axis=1)]
+
+    # Combine df_blanks and df_address_without_number
+    combined_errors = pd.concat([df_blanks, df_address_without_number])
+    return combined_errors
+
 # For each Excel file in <input_directory>, do the following:
 def prep_excel_files(input_directory, directory_to_geocode, results_directory):
     print("Prepping Excel files")
@@ -48,20 +65,7 @@ def prep_excel_files(input_directory, directory_to_geocode, results_directory):
         df['Latitude'] = 0.0
         df['Longitude'] = 0.0
 
-        # Identify potential problem records
-        # Find records where the 'Address' column is blank
-        df_blanks = df[pd.isna(df['Address'])]
-        if len(df_blanks) > 0:
-            print(original_excel_file)
-            print(df_blanks[['Company_Name', 'Address', 'City', 'State', 'ZIP_Code']])
-            print('\n')
-
-        # Find records where the 'Address' column doesn't have a number
-        df_potential_no_number = df[pd.notna(df['Address'])]
-        df_address_without_number = df_potential_no_number[df_potential_no_number.apply(lambda x: any(char.isdigit() for char in x['Address']) == False, axis=1)]
-
-        # Combine df_blanks and df_address_without_number
-        df_with_errors = pd.concat([df_blanks, df_address_without_number])
+        df_with_errors = find_problem_records(df)
 
         # For each problem record, return the original address, city and zip code, then
         # give the user the option to input a valid address, set of

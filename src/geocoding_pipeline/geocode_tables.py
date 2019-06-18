@@ -14,7 +14,7 @@ import numpy as np
 import shutil
 
 # Import the geocoding toolbox here so that it gets imported before switching directories
-arcpy.ImportToolbox('geocoding-toolbox-pro-python-3/TableGeocoder/AGRC Geocode Tools.tbx')
+arcpy.ImportToolbox('src/geocoding-pipeline/geocoding-toolbox-pro-python-3/TableGeocoder/AGRC Geocode Tools.tbx')
 
 def main(directory_to_geocode):
     print("Begin geocoding records")
